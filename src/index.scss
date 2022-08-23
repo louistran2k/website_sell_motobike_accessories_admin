@@ -1,13 +1,48 @@
-body {
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
+
+  &:disabled {
+    opacity: 0.7;
+  }
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+:root {
+  --primary-color: #03a9f4;
+  --header-height: 60px;
+  --sidebar-width: 220px;
+  --background-color: #00bcd5;
+  --background-color-1: #fdfdfd;
+  --white-color: #fff;
+  --text-color-1: #555555;
+  --text-color-2: #111111;
+  --btn-color-1: #ff4181;
+  --footer-sidebar-height: 70px;
+  --left-sidebar-width: 300px;
+}
+
+// .MuiInputBase-input {
+//   width: 120px !important;
+//   padding: 10px !important;
+//   padding-right: 32px !important;
+// }
+
+.MuiListItem-root {
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+// .MuiTableCell-root {
+//   padding: 8px 16px !important;
+// }
