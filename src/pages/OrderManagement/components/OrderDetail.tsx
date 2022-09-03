@@ -26,7 +26,7 @@ const OrderDetail = ({ openViewDetail, handleClose }: Props) => {
   const classes = useStyles();
   const orderDetail = useAppSelector(getDetail);
 
-  const total = orderDetail.details.reduce(
+  const total = orderDetail.customerOrderDetails.reduce(
     (prev, cur) => prev + cur.totalPrice,
     0
   );
@@ -45,7 +45,7 @@ const OrderDetail = ({ openViewDetail, handleClose }: Props) => {
         <HighlightOffIcon />
       </IconButton>
       <Typography variant="h4">Chi tiết đơn hàng</Typography>
-      <Typography>{`Mã đơn đặt: ${orderDetail.customerOrderId}`}</Typography>
+      <Typography>{`Mã đơn đặt: ${orderDetail.id}`}</Typography>
       <Typography>{`Trạng thái đơn hàng: ${
         CustomerOrderStatus[orderDetail.status]
       }`}</Typography>
@@ -57,10 +57,15 @@ const OrderDetail = ({ openViewDetail, handleClose }: Props) => {
       )}
       <Grid container className={classes.customer}>
         <Grid item xs={6}>
-          <Typography>{`Tên khách hàng: ${orderDetail.ordererName}`}</Typography>
-          {orderDetail.ordererPhoneNumber && (
-            <Typography>{`Số điện thoại: ${orderDetail.ordererPhoneNumber}`}</Typography>
+          {orderDetail.customer && (
+            <>
+              <Typography>{`Tên khách hàng: ${orderDetail.customer.firstName} ${orderDetail.customer.lastName}`}</Typography>
+              {orderDetail.customer.phoneNumber && (
+                <Typography>{`Số điện thoại: ${orderDetail.customer.phoneNumber}`}</Typography>
+              )}
+            </>
           )}
+
           <Typography>{`Ngày đặt: ${format(
             new Date(orderDetail.createAt),
             'dd-MM-yyyy'
@@ -71,10 +76,18 @@ const OrderDetail = ({ openViewDetail, handleClose }: Props) => {
           )}`}</Typography>
         </Grid>
         <Grid item xs={6}>
-          <Typography>{`Người nhận: ${orderDetail.receiverName}`}</Typography>
-          <Typography>{`Số điện thoại: ${orderDetail.receiverPhoneNumber}`}</Typography>
-          <Typography>{`Email: ${orderDetail.receiverEmail}`}</Typography>
-          <Typography>{`Địa chỉ: ${orderDetail.deliveryAddress}`}</Typography>
+          {orderDetail.receiverFullName && (
+            <Typography>{`Người nhận: ${orderDetail.receiverFullName}`}</Typography>
+          )}
+          {orderDetail.receiverPhoneNumber && (
+            <Typography>{`Số điện thoại: ${orderDetail.receiverPhoneNumber}`}</Typography>
+          )}
+          {orderDetail.receiverEmail && (
+            <Typography>{`Email: ${orderDetail.receiverEmail}`}</Typography>
+          )}
+          {orderDetail.deliveryAddress && (
+            <Typography>{`Địa chỉ: ${orderDetail.deliveryAddress}`}</Typography>
+          )}
         </Grid>
       </Grid>
       <Table>
@@ -87,11 +100,11 @@ const OrderDetail = ({ openViewDetail, handleClose }: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {orderDetail.details.length > 0 &&
-            orderDetail.details.map((item, index) => (
+          {orderDetail.customerOrderDetails.length > 0 &&
+            orderDetail.customerOrderDetails.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>
-                  <Typography variant="body1">{item.productName}</Typography>
+                  <Typography variant="body1">{item.product.name}</Typography>
                 </TableCell>
                 <TableCell>
                   <Typography variant="body1" style={{ textAlign: 'center' }}>

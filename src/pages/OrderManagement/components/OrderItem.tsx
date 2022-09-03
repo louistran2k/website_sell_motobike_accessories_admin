@@ -27,13 +27,14 @@ import {
   UpdateRequest,
   CustomerOrder,
   CustomerOrderStatus,
+  CustomerOrderDto,
 } from 'types/customerOrder.type';
 import { getAdmin } from 'redux/user/selectors';
 import Swal from 'sweetalert2';
 import { confirmButtonColor, cancelButtonColor } from 'themes/HomeTheme';
 
 type Props = {
-  item: CustomerOrder;
+  item: CustomerOrderDto;
 };
 
 const OrderItem = ({ item }: Props) => {
@@ -52,20 +53,20 @@ const OrderItem = ({ item }: Props) => {
   };
   const handleViewOrderDetail = () => {
     dispatch(setIsShowDetail());
-    dispatch(getOrderDetailAsync(item.customerOrderId));
+    dispatch(getOrderDetailAsync(item.id));
   };
   const handleUpdate = async () => {
     switch (status) {
       case CustomerOrderStatus.WAIT_CONFIRM: {
         const params: UpdateRequest = {
-          id: item.customerOrderId,
+          id: item.id,
           status,
           approvalStaffId: user.id,
           deliveryStaffId: staff,
         };
         const confirm = await Swal.fire({
           title: 'Xác nhận đơn hàng',
-          text: `Đơn hàng ${item.customerOrderId}`,
+          text: `Đơn hàng ${item.id}`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: confirmButtonColor,
@@ -81,7 +82,7 @@ const OrderItem = ({ item }: Props) => {
       case CustomerOrderStatus.DELIVERING: {
         const confirm = await Swal.fire({
           title: 'Xác nhận giao thành công',
-          text: `Đơn hàng ${item.customerOrderId}`,
+          text: `Đơn hàng ${item.id}`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonColor: confirmButtonColor,
@@ -90,7 +91,7 @@ const OrderItem = ({ item }: Props) => {
           reverseButtons: true,
         });
         if (confirm.isConfirmed) {
-          dispatch(deliveredAsync(item.customerOrderId));
+          dispatch(deliveredAsync(item.id));
         }
         break;
       }
@@ -99,7 +100,7 @@ const OrderItem = ({ item }: Props) => {
   const handleCancel = async () => {
     const confirm = await Swal.fire({
       title: 'Hủy đơn hàng',
-      text: `Đơn hàng ${item.customerOrderId}`,
+      text: `Đơn hàng ${item.id}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: confirmButtonColor,
@@ -108,12 +109,12 @@ const OrderItem = ({ item }: Props) => {
       reverseButtons: true,
     });
     if (confirm.isConfirmed) {
-      dispatch(cancelledAsync(item.customerOrderId));
+      dispatch(cancelledAsync(item.id));
     }
   };
   const handleChangeDeliveryStaff = async () => {
     const params: UpdateRequest = {
-      id: item.customerOrderId,
+      id: item.id,
       status,
       deliveryStaffId: staff,
     };
@@ -132,13 +133,15 @@ const OrderItem = ({ item }: Props) => {
     }
   };
   return (
-    <TableRow key={item.customerOrderId}>
+    <TableRow key={item.id}>
       <TableCell size="small">
-        <Typography variant="body1">{item.customerOrderId}</Typography>
+        <Typography variant="body1">{item.id}</Typography>
       </TableCell>
-      <TableCell size="small">
-        <Typography variant="body1">{item.ordererName}</Typography>
-      </TableCell>
+      {item.customer && (
+        <TableCell size="small">
+          <Typography variant="body1">{`${item.customer.firstName} ${item.customer.lastName}`}</Typography>
+        </TableCell>
+      )}
       {(status === CustomerOrderStatus.WAIT_CONFIRM ||
         status === CustomerOrderStatus.COMPLETED) && (
         <TableCell>
@@ -157,29 +160,34 @@ const OrderItem = ({ item }: Props) => {
         </TableCell>
       )}
       <TableCell size="small">
-        <Typography variant="body1">{convertCurrency(item.total)}</Typography>
+        <Typography variant="body1">
+          {convertCurrency(item.totalPrice)}
+        </Typography>
       </TableCell>
       {(status === CustomerOrderStatus.DELIVERING ||
-        status === CustomerOrderStatus.COMPLETED) && (
+        status === CustomerOrderStatus.COMPLETED) &&
+        item.approvalStaffId && (
+          <TableCell>
+            <Typography variant="body1">{`${item.approvalStaffName}`}</Typography>
+          </TableCell>
+        )}
+      {status === CustomerOrderStatus.COMPLETED && item.deliveryStaffId && (
         <TableCell>
-          <Typography variant="body1">{item.approvalStaffName}</Typography>
-        </TableCell>
-      )}
-      {status === CustomerOrderStatus.COMPLETED && (
-        <TableCell>
-          <Typography variant="body1">{item.deliveryStaffName}</Typography>
+          <Typography variant="body1">{`${item.deliveryStaffName}`}</Typography>
         </TableCell>
       )}
       {(status === CustomerOrderStatus.WAIT_CONFIRM ||
         status === CustomerOrderStatus.DELIVERING) && (
         <TableCell>
           <Select value={staff} onChange={handleChange}>
-            {staffs.map((item) => (
-              <MenuItem
-                key={item.id}
-                value={item.id}
-              >{`${item.firstName} ${item.lastName}`}</MenuItem>
-            ))}
+            {staffs
+              .filter((item) => item.roleId === 'NV')
+              .map((item) => (
+                <MenuItem
+                  key={item.id}
+                  value={item.id}
+                >{`${item.firstName} ${item.lastName}`}</MenuItem>
+              ))}
           </Select>
           {status === CustomerOrderStatus.DELIVERING && (
             <IconButton

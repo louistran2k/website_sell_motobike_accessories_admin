@@ -63,7 +63,7 @@ const userSlice = createSlice({
         state.admin = { ...payload.data.user };
       })
       .addCase(AdminSignIn.rejected, () => {
-        toast.error('Tài khoản không hợp lệ!');
+        toast.error('Đăng nhập thất bại!');
       });
     builder
       .addCase(ShipperSignIn.fulfilled, (state, { payload }) => {

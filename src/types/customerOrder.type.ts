@@ -1,38 +1,53 @@
+import { Customer } from './customer.type';
+import { Product } from './product.type';
 import { Staff } from './staff.type';
 
 export interface CustomerOrderState {
-  list: CustomerOrder[];
+  list: CustomerOrderDto[];
   staffs: Staff[];
   status: CustomerOrderStatus;
   isShowDetail: boolean;
-  customerOrder: CustomerOrder;
-  deliveryStatus: CustomerOrderStatus;
-  shipperList: CustomerOrder[];
+  customerOrder: CustomerOrderDto;
 }
 
 export interface CustomerOrder {
-  customerOrderId: number;
+  id: number;
   createAt: Date;
   status: CustomerOrderStatus;
   deliveryAddress: string;
   deliveryDate: Date;
-  receiverName: string;
+  receiverFullName: string;
   receiverPhoneNumber: string;
   receiverEmail: string;
-  total: number;
+  totalPrice: number;
   approvalStaffId: string;
   deliveryStaffId: string;
   approvalStaffName: string;
   deliveryStaffName: string;
   citizenIdentification: string;
-  ordererName: string;
-  ordererPhoneNumber: string;
-  details: CustomerOrderDetail[];
+}
+
+export interface CustomerOrderDto {
+  id: number;
+  createAt: Date;
+  status: CustomerOrderStatus;
+  deliveryAddress: string;
+  deliveryDate: Date;
+  receiverFullName: string;
+  receiverPhoneNumber: string;
+  receiverEmail: string;
+  totalPrice: number;
+  approvalStaffId: string;
+  deliveryStaffId: string;
+  approvalStaffName: string;
+  deliveryStaffName: string;
+  citizenIdentification: string;
+  customerOrderDetails: CustomerOrderDetailDto[];
+  customer: Customer | null;
 }
 
 export interface CustomerOrderDetail {
   productId: string;
-  productName: string;
   customerOrderId: number;
   orderQuantity: number;
   totalPrice: number;
@@ -40,6 +55,18 @@ export interface CustomerOrderDetail {
   customerMark?: number;
   returnCardId?: string;
   returnQuantity?: number;
+}
+
+export interface CustomerOrderDetailDto {
+  productId: string;
+  customerOrderId: number;
+  orderQuantity: number;
+  totalPrice: number;
+  customerComment?: string;
+  customerMark?: number;
+  returnCardId?: string;
+  returnQuantity?: number;
+  product: Product;
 }
 
 export enum CustomerOrderStatus {

@@ -10,7 +10,7 @@ import {
   useTheme,
   Tooltip,
 } from '@mui/material';
-import { format } from 'date-fns';
+import { format, formatDistance } from 'date-fns';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { convertCurrency, setIsShowDetail } from 'redux/customerOrder/slice';
@@ -40,65 +40,15 @@ const OrderItem = ({ item }: Props) => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const status = useAppSelector(getStatus);
-  const user = useAppSelector(getAdmin);
 
-  const [staff, setStaff] = useState(
-    item.deliveryStaffId ? item.deliveryStaffId : ''
-  );
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setStaff(event.target.value as string);
-  };
   const handleViewOrderDetail = () => {
     dispatch(setIsShowDetail());
-    dispatch(getOrderDetailAsync(item.customerOrderId));
+    dispatch(getOrderDetailAsync(item.id));
   };
   const handleUpdate = async () => {
-    switch (status) {
-      case CustomerOrderStatus.WAIT_CONFIRM: {
-        const params: UpdateRequest = {
-          id: item.customerOrderId,
-          status,
-          approvalStaffId: user.id,
-          deliveryStaffId: staff,
-        };
-        const confirm = await Swal.fire({
-          title: 'Xác nhận đơn hàng',
-          text: `Đơn hàng ${item.customerOrderId}`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: confirmButtonColor,
-          cancelButtonColor: cancelButtonColor,
-          confirmButtonText: 'Yes',
-          reverseButtons: true,
-        });
-        if (confirm.isConfirmed) {
-          dispatch(approvalCustomerOrderAsync(params));
-        }
-        break;
-      }
-      case CustomerOrderStatus.DELIVERING: {
-        const confirm = await Swal.fire({
-          title: 'Xác nhận giao thành công',
-          text: `Đơn hàng ${item.customerOrderId}`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: confirmButtonColor,
-          cancelButtonColor: cancelButtonColor,
-          confirmButtonText: 'Yes',
-          reverseButtons: true,
-        });
-        if (confirm.isConfirmed) {
-          dispatch(deliveredAsync(item.customerOrderId));
-        }
-        break;
-      }
-    }
-  };
-  const handleCancel = async () => {
     const confirm = await Swal.fire({
-      title: 'Hủy đơn hàng',
-      text: `Đơn hàng ${item.customerOrderId}`,
+      title: 'Xác nhận giao thành công',
+      text: `Đơn hàng ${item.id}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: confirmButtonColor,
@@ -107,42 +57,24 @@ const OrderItem = ({ item }: Props) => {
       reverseButtons: true,
     });
     if (confirm.isConfirmed) {
-      dispatch(cancelledAsync(item.customerOrderId));
-    }
-  };
-  const handleChangeDeliveryStaff = async () => {
-    const params: UpdateRequest = {
-      id: item.customerOrderId,
-      status,
-      deliveryStaffId: staff,
-    };
-    const confirm = await Swal.fire({
-      title: 'Đổi nhân viên giao hàng',
-      text: ``,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: confirmButtonColor,
-      cancelButtonColor: cancelButtonColor,
-      confirmButtonText: 'Yes',
-      reverseButtons: true,
-    });
-    if (confirm.isConfirmed) {
-      dispatch(changeDeliveryStaffAsync(params));
+      dispatch(deliveredAsync(item.id));
     }
   };
   return (
-    <TableRow key={item.customerOrderId}>
+    <TableRow key={item.id}>
       <TableCell size="small">
-        <Typography variant="body1">{item.customerOrderId}</Typography>
+        <Typography variant="body1">{item.id}</Typography>
       </TableCell>
       <TableCell size="small">
-        <Typography variant="body1">{item.receiverName}</Typography>
+        <Typography variant="body1">{item.receiverFullName}</Typography>
       </TableCell>
       <TableCell size="small">
         <Typography variant="body1">{item.receiverPhoneNumber}</Typography>
       </TableCell>
       <TableCell size="small">
-        <Typography variant="body1">{item.deliveryDate}</Typography>
+        <Typography variant="body1">
+          {format(new Date(item.deliveryDate), 'dd/MM/yyyy')}
+        </Typography>
       </TableCell>
       <TableCell size="small">
         <Typography variant="body1">{item.deliveryAddress}</Typography>
@@ -153,31 +85,10 @@ const OrderItem = ({ item }: Props) => {
             <Visibility style={{ color: 'var(--primary-color)' }} />
           </Tooltip>
         </IconButton>
-        {(status === CustomerOrderStatus.WAIT_CONFIRM ||
-          status === CustomerOrderStatus.DELIVERING) && (
-          <IconButton onClick={handleUpdate} disabled={staff === ''}>
-            <Tooltip
-              title={`${
-                status === CustomerOrderStatus.WAIT_CONFIRM
-                  ? 'Xác nhận đơn hàng'
-                  : 'Giao thành công'
-              }`}
-            >
+        {status === CustomerOrderStatus.DELIVERING && (
+          <IconButton onClick={handleUpdate}>
+            <Tooltip title="Giao thành công">
               <CheckCircle style={{ color: theme.palette.success.main }} />
-            </Tooltip>
-          </IconButton>
-        )}
-        {(status === CustomerOrderStatus.WAIT_CONFIRM ||
-          status === CustomerOrderStatus.DELIVERING) && (
-          <IconButton onClick={handleCancel}>
-            <Tooltip
-              title={`${
-                status === CustomerOrderStatus.WAIT_CONFIRM
-                  ? 'Hủy đơn hàng'
-                  : 'Giao không thành công'
-              }`}
-            >
-              <Delete style={{ color: theme.palette.error.main }} />
             </Tooltip>
           </IconButton>
         )}

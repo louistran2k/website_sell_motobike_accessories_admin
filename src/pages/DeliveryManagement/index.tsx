@@ -1,12 +1,9 @@
 import { AppBar, Container, Tab, Tabs } from '@mui/material';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import SwipeableViews from 'react-swipeable-views';
-import { setIsShowDetail, setDeliveryStatus } from 'redux/customerOrder/slice';
+import { setIsShowDetail, setStatus } from 'redux/customerOrder/slice';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import {
-  getIsShowDetail,
-  getDeliveryStatus,
-} from 'redux/customerOrder/selectors';
+import { getIsShowDetail, getStatus } from 'redux/customerOrder/selectors';
 import {
   CustomerOrderStatus,
   GetDeliveryRequest,
@@ -16,11 +13,12 @@ import OrderDetail from 'pages/OrderManagement/components/OrderDetail';
 import TableOrder from './components/TableOrder';
 import { getDeliveryAsync } from 'redux/customerOrder/thunkActions';
 import { getShipper } from 'redux/user/selectors';
+import { getStaffsAsync } from 'redux/staff/thunkActions';
 
 const DeliveryManagement = () => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const status = useAppSelector(getDeliveryStatus);
+  const status = useAppSelector(getStatus);
   const shipper = useAppSelector(getShipper);
   const isShowDetail = useAppSelector(getIsShowDetail);
 
@@ -28,8 +26,14 @@ const DeliveryManagement = () => {
     event: SyntheticEvent,
     newValue: CustomerOrderStatus
   ) => {
-    dispatch(setDeliveryStatus(newValue));
+    dispatch(setStatus(newValue));
   };
+
+  useEffect(() => {
+    (async () => {
+      await dispatch(getStaffsAsync());
+    })();
+  }, []);
 
   useEffect(() => {
     const req: GetDeliveryRequest = {
@@ -53,7 +57,7 @@ const DeliveryManagement = () => {
             variant="fullWidth"
           >
             <Tab
-              label="Được phần công"
+              label="Được phân công"
               value={CustomerOrderStatus.DELIVERING}
             />
             <Tab label="Đã hoàn tất" value={CustomerOrderStatus.COMPLETED} />

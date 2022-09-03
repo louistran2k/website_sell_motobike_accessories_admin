@@ -11,15 +11,11 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useAppSelector } from 'redux/hooks';
-import {
-  getCustomerOrders,
-  getShipperOrders,
-  getStatus,
-} from 'redux/customerOrder/selectors';
+import { getCustomerOrders, getStatus } from 'redux/customerOrder/selectors';
 import OrderItem from './OrderItem';
 
 const TableOrder = () => {
-  const list = useAppSelector(getShipperOrders);
+  const list = useAppSelector(getCustomerOrders);
   const status = useAppSelector(getStatus);
 
   return (
@@ -47,7 +43,7 @@ const TableOrder = () => {
         </TableHead>
         <TableBody>
           {list.map((item) => (
-            <OrderItem key={item.customerOrderId} item={item} />
+            <OrderItem key={item.id} item={item} />
           ))}
         </TableBody>
       </Table>

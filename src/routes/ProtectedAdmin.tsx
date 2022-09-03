@@ -9,10 +9,12 @@ type Props = {
 };
 
 const ProtectedAdmin = ({ children }: Props) => {
+  const dispatch = useAppDispatch();
   const accessToken = useAppSelector(adminAccessTokenSelector);
   if (!accessToken) {
     return <Navigate to="/admin/auth/login" />;
   }
+  dispatch(setStatus(CustomerOrderStatus.WAIT_CONFIRM));
   return children;
 };
 

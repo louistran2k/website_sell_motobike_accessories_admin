@@ -9,10 +9,12 @@ type Props = {
 };
 
 const ProtectedShipper = ({ children }: Props) => {
+  const dispatch = useAppDispatch();
   const accessToken = useAppSelector(shipperAccessTokenSelector);
   if (!accessToken) {
     return <Navigate to="/shipper/auth/login" />;
   }
+  dispatch(setStatus(CustomerOrderStatus.DELIVERING));
   return children;
 };
 

@@ -117,7 +117,7 @@ export const getOrderDetailAsync = createAsyncThunk(
   'customerOrders/detail',
   async (id: number) => {
     try {
-      const res = await axiosClient.get('api/customerOrderDetail/getById', {
+      const res = await axiosClient.get('api/customerOrder/getDetail', {
         params: {
           id,
         },

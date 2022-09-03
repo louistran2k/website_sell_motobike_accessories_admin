@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { getStaffsAsync } from 'redux/staff/thunkActions';
 import {
   CustomerOrder,
+  CustomerOrderDto,
   CustomerOrderState,
   CustomerOrderStatus,
   DeliveryStatus,
@@ -24,24 +25,23 @@ export const convertCurrency = (price: number) =>
     currency: 'VND',
   }).format(price);
 
-export const customerOrderInit: CustomerOrder = {
-  customerOrderId: -1,
+export const customerOrderInit: CustomerOrderDto = {
+  id: -1,
   createAt: new Date(),
   status: -1,
   deliveryAddress: '',
   deliveryDate: new Date(),
-  receiverName: '',
+  receiverFullName: '',
   receiverPhoneNumber: '',
   receiverEmail: '',
-  total: 0,
+  totalPrice: 0,
   approvalStaffId: '',
   deliveryStaffId: '',
   approvalStaffName: '',
   deliveryStaffName: '',
   citizenIdentification: '',
-  ordererName: '',
-  ordererPhoneNumber: '',
-  details: [],
+  customerOrderDetails: [],
+  customer: null,
 };
 
 export const initialState: CustomerOrderState = {
@@ -50,8 +50,6 @@ export const initialState: CustomerOrderState = {
   status: CustomerOrderStatus.WAIT_CONFIRM,
   isShowDetail: false,
   customerOrder: customerOrderInit,
-  deliveryStatus: CustomerOrderStatus.DELIVERING,
-  shipperList: [],
 };
 
 const customerOrderSlice = createSlice({
@@ -60,9 +58,6 @@ const customerOrderSlice = createSlice({
   reducers: {
     setStatus: (state, { payload }) => {
       state.status = payload;
-    },
-    setDeliveryStatus: (state, { payload }) => {
-      state.deliveryStatus = payload;
     },
     setIsShowDetail: (state) => {
       state.isShowDetail = !state.isShowDetail;
@@ -87,14 +82,17 @@ const customerOrderSlice = createSlice({
       });
     });
     builder.addCase(getStaffsAsync.fulfilled, (state, { payload }) => {
-      state.staffs = payload.data;
+      state.staffs = payload.data.map((item: any) => ({
+        ...item,
+        roleId: item.account.roleId.trim(),
+      }));
     });
     builder.addCase(
       approvalCustomerOrderAsync.fulfilled,
       (state, { payload }) => {
         if (payload.data === 1) {
           state.list = state.list.filter(
-            (item) => item.customerOrderId !== payload.config.params.id
+            (item) => item.id !== payload.config.params.id
           );
           toast.success(`Đã xác nhận đơn hàng ${payload.config.params.id}`);
         }
@@ -108,7 +106,7 @@ const customerOrderSlice = createSlice({
             payload.config.data
           ).deliveryStaffId;
           state.list.forEach((item) => {
-            if (item.customerOrderId === payload.config.params.id) {
+            if (item.id === payload.config.params.id) {
               item.deliveryStaffId = deliveryStaffId;
             }
           });
@@ -121,7 +119,7 @@ const customerOrderSlice = createSlice({
     builder.addCase(deliveredAsync.fulfilled, (state, { payload }) => {
       if (payload.data === 1) {
         state.list = state.list.filter(
-          (item) => item.customerOrderId !== payload.config.params.id
+          (item) => item.id !== payload.config.params.id
         );
         toast.success(`Đơn hàng ${payload.config.params.id}: Giao thành công`);
       }
@@ -129,34 +127,54 @@ const customerOrderSlice = createSlice({
     builder.addCase(cancelledAsync.fulfilled, (state, { payload }) => {
       if (payload.data === 1) {
         state.list = state.list.filter(
-          (item) => item.customerOrderId !== payload.config.params.id
+          (item) => item.id !== payload.config.params.id
         );
         toast.success(`Đã hủy đơn hàng ${payload.config.params.id}`);
       }
     });
     builder.addCase(getOrderDetailAsync.fulfilled, (state, { payload }) => {
-      const tmp = state.list.find(
-        (item) => item.customerOrderId === payload.config.params.id
+      let approvalStaffName = '';
+      let deliveryStaffName = '';
+      const tmp: Staff | undefined = state.staffs.find(
+        (staff) => staff.id.trim() === payload.data.approvalStaffId.trim()
       );
       if (tmp) {
-        state.customerOrder = {
-          ...tmp,
-          details: payload.data.map((item: any) => ({
-            ...item,
-            productName: item.product.name,
-          })),
-        };
+        approvalStaffName = `${tmp.firstName} ${tmp.lastName}`;
       }
+      const tmp1: Staff | undefined = state.staffs.find(
+        (staff) => staff.id.trim() === payload.data.deliveryStaffId.trim()
+      );
+      if (tmp1) {
+        deliveryStaffName = `${tmp1.firstName} ${tmp1.lastName}`;
+      }
+      state.customerOrder = {
+        ...payload.data,
+        approvalStaffName,
+        deliveryStaffName,
+      };
     });
     builder.addCase(getDeliveryAsync.fulfilled, (state, { payload }) => {
-      state.shipperList = payload.data as CustomerOrder[];
+      state.list = payload.data;
+      state.list.forEach((item) => {
+        const tmp: Staff | undefined = state.staffs.find(
+          (staff) => staff.id === item.approvalStaffId
+        );
+        if (tmp) {
+          item.approvalStaffName = `${tmp.firstName} ${tmp.lastName}`;
+        }
+        const tmp1: Staff | undefined = state.staffs.find(
+          (staff) => staff.id === item.deliveryStaffId
+        );
+        if (tmp1) {
+          item.deliveryStaffName = `${tmp1.firstName} ${tmp1.lastName}`;
+        }
+      });
     });
   },
 });
 
 const { reducer: customerOrderReducer } = customerOrderSlice;
 
-export const { setStatus, setIsShowDetail, setDeliveryStatus } =
-  customerOrderSlice.actions;
+export const { setStatus, setIsShowDetail } = customerOrderSlice.actions;
 
 export default customerOrderReducer;

@@ -16,11 +16,11 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useStyles } from './style';
 
 const adminDashboard = [
-  {
-    to: '/admin/app/home',
-    icon: Home,
-    title: 'Trang chủ',
-  },
+  // {
+  //   to: '/admin/app/home',
+  //   icon: Home,
+  //   title: 'Trang chủ',
+  // },
   {
     to: '/admin/app/orders',
     icon: ImportContacts,

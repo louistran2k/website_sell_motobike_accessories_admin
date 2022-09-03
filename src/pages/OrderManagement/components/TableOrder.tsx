@@ -68,7 +68,7 @@ const TableOrder = () => {
         </TableHead>
         <TableBody>
           {list.map((item) => (
-            <OrderItem key={item.customerOrderId} item={item} />
+            <OrderItem key={item.id} item={item} />
           ))}
         </TableBody>
       </Table>

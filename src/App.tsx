@@ -49,7 +49,7 @@ function App() {
                 </ProtectedAdmin>
               }
             >
-              <Route index element={<Navigate to="home" />} />
+              <Route index element={<Navigate to="orders" />} />
               {adminAppRoutes.map(({ path, Component }, index) => (
                 <Route
                   key={index}

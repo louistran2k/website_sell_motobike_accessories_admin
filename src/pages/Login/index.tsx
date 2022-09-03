@@ -46,7 +46,7 @@ function Login() {
     } else {
       const res = await dispatch(AdminSignIn(data));
       if (res.payload) {
-        navigate('/admin/app/home');
+        navigate('/admin/app/orders');
       }
     }
   };

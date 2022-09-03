@@ -1,5 +1,5 @@
-export interface Staff {
-  id: string;
+export interface Customer {
+  citizenIdentification: string;
   lastName: string;
   firstName: string;
   gender: boolean | null;
@@ -7,6 +7,6 @@ export interface Staff {
   address: string;
   phoneNumber: string;
   email: string;
+  taxCode: string;
   accountId: string;
-  roleId: string;
 }
