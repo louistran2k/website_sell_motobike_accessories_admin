@@ -1,6 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
-import { getStaffsAsync } from 'redux/staff/thunkActions';
+import {
+  getStaffsAsync,
+  getStaffsForDeliveryAsync,
+} from 'redux/staff/thunkActions';
 import {
   CustomerOrder,
   CustomerOrderDto,
@@ -17,6 +20,7 @@ import {
   getCustomerOrdersAsync,
   getDeliveryAsync,
   getOrderDetailAsync,
+  getOrderDetailShipperAsync,
 } from './thunkActions';
 
 export const convertCurrency = (price: number) =>
@@ -88,6 +92,15 @@ const customerOrderSlice = createSlice({
       }));
     });
     builder.addCase(
+      getStaffsForDeliveryAsync.fulfilled,
+      (state, { payload }) => {
+        state.staffs = payload.data.map((item: any) => ({
+          ...item,
+          roleId: item.account.roleId.trim(),
+        }));
+      }
+    );
+    builder.addCase(
       approvalCustomerOrderAsync.fulfilled,
       (state, { payload }) => {
         if (payload.data === 1) {
@@ -135,15 +148,23 @@ const customerOrderSlice = createSlice({
     builder.addCase(getOrderDetailAsync.fulfilled, (state, { payload }) => {
       let approvalStaffName = '';
       let deliveryStaffName = '';
-      const tmp: Staff | undefined = state.staffs.find(
-        (staff) => staff.id.trim() === payload.data.approvalStaffId.trim()
-      );
+      let tmp: Staff | undefined;
+      if (payload.data.approvalStaffId) {
+        tmp = state.staffs.find(
+          (staff) =>
+            staff.id.trim() === (payload.data.approvalStaffId as string).trim()
+        );
+      }
       if (tmp) {
         approvalStaffName = `${tmp.firstName} ${tmp.lastName}`;
       }
-      const tmp1: Staff | undefined = state.staffs.find(
-        (staff) => staff.id.trim() === payload.data.deliveryStaffId.trim()
-      );
+      let tmp1: Staff | undefined;
+      if (payload.data.deliveryStaffId) {
+        tmp1 = state.staffs.find(
+          (staff) =>
+            staff.id.trim() === (payload.data.deliveryStaffId as string).trim()
+        );
+      }
       if (tmp1) {
         deliveryStaffName = `${tmp1.firstName} ${tmp1.lastName}`;
       }
@@ -153,6 +174,40 @@ const customerOrderSlice = createSlice({
         deliveryStaffName,
       };
     });
+    builder.addCase(
+      getOrderDetailShipperAsync.fulfilled,
+      (state, { payload }) => {
+        let approvalStaffName = '';
+        let deliveryStaffName = '';
+        let tmp: Staff | undefined;
+        if (payload.data.approvalStaffId) {
+          tmp = state.staffs.find(
+            (staff) =>
+              staff.id.trim() ===
+              (payload.data.approvalStaffId as string).trim()
+          );
+        }
+        if (tmp) {
+          approvalStaffName = `${tmp.firstName} ${tmp.lastName}`;
+        }
+        let tmp1: Staff | undefined;
+        if (payload.data.deliveryStaffId) {
+          tmp1 = state.staffs.find(
+            (staff) =>
+              staff.id.trim() ===
+              (payload.data.deliveryStaffId as string).trim()
+          );
+        }
+        if (tmp1) {
+          deliveryStaffName = `${tmp1.firstName} ${tmp1.lastName}`;
+        }
+        state.customerOrder = {
+          ...payload.data,
+          approvalStaffName,
+          deliveryStaffName,
+        };
+      }
+    );
     builder.addCase(getDeliveryAsync.fulfilled, (state, { payload }) => {
       state.list = payload.data;
       state.list.forEach((item) => {

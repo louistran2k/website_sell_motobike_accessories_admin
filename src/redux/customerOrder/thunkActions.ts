@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axiosClient from 'api/axiosClient';
+import { axiosClientAdmin, axiosClientShipper } from 'api/axiosClient';
 import { CustomTimeType } from 'pages/RevenueStatistics';
 import {
   UpdateRequest,
@@ -11,7 +11,7 @@ export const getCustomerOrdersAsync = createAsyncThunk(
   'customerOrders/getAll',
   async (status: CustomerOrderStatus) => {
     try {
-      const res = await axiosClient.get('api/customerOrder/getAll', {
+      const res = await axiosClientAdmin.get('api/customerOrder/getAll', {
         params: {
           status,
         },
@@ -27,7 +27,7 @@ export const approvalCustomerOrderAsync = createAsyncThunk(
   'customerOrders/approval',
   async (params: UpdateRequest) => {
     try {
-      const res = await axiosClient.put(
+      const res = await axiosClientAdmin.put(
         'api/customerOrder/approval',
         {
           status: params.status,
@@ -51,7 +51,7 @@ export const changeDeliveryStaffAsync = createAsyncThunk(
   'customerOrders/changeDeliveryStaff',
   async (params: UpdateRequest) => {
     try {
-      const res = await axiosClient.put(
+      const res = await axiosClientAdmin.put(
         'api/customerOrder/changeDeliveryStaff',
         {
           deliveryStaffId: params.deliveryStaffId,
@@ -73,7 +73,7 @@ export const deliveredAsync = createAsyncThunk(
   'customerOrders/delivered',
   async (id: number) => {
     try {
-      const res = await axiosClient.put(
+      const res = await axiosClientAdmin.put(
         'api/customerOrder/delivered',
         {
           status: 3,
@@ -95,7 +95,7 @@ export const cancelledAsync = createAsyncThunk(
   'customerOrders/cancelled',
   async (id: number) => {
     try {
-      const res = await axiosClient.put(
+      const res = await axiosClientAdmin.put(
         'api/customerOrder/cancelled',
         {
           status: 4,
@@ -117,7 +117,23 @@ export const getOrderDetailAsync = createAsyncThunk(
   'customerOrders/detail',
   async (id: number) => {
     try {
-      const res = await axiosClient.get('api/customerOrder/getDetail', {
+      const res = await axiosClientAdmin.get('api/customerOrder/getDetail', {
+        params: {
+          id,
+        },
+      });
+      return res;
+    } catch (error) {
+      throw new Error(String(error));
+    }
+  }
+);
+
+export const getOrderDetailShipperAsync = createAsyncThunk(
+  'customerOrders/detailShipper',
+  async (id: number) => {
+    try {
+      const res = await axiosClientShipper.get('api/customerOrder/getDetail', {
         params: {
           id,
         },
@@ -133,7 +149,7 @@ export const getRevenueAsync = createAsyncThunk(
   'revenue/get',
   async ({ startDate, endDate }: CustomTimeType) => {
     try {
-      const res = await axiosClient.get('api/revenue/get', {
+      const res = await axiosClientAdmin.get('api/revenue/get', {
         params: {
           start: startDate,
           end: endDate,
@@ -150,12 +166,15 @@ export const getDeliveryAsync = createAsyncThunk(
   'customerOrders/getDelivery',
   async ({ deliveryStaffId, status }: GetDeliveryRequest) => {
     try {
-      const res = await axiosClient.get('api/customerOrder/getDelivery', {
-        params: {
-          deliveryStaffId,
-          status,
-        },
-      });
+      const res = await axiosClientShipper.get(
+        'api/customerOrder/getDelivery',
+        {
+          params: {
+            deliveryStaffId,
+            status,
+          },
+        }
+      );
       return res;
     } catch (error) {
       throw new Error(String(error));

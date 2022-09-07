@@ -7,7 +7,7 @@ import {
   removeAccessToken,
   setAccessToken,
 } from 'utils/storage';
-import { AdminSignIn, ShipperSignIn } from './thunkActions';
+import { adminSignIn, shipperSignIn } from './thunkActions';
 
 export const userInit: User = {
   id: '',
@@ -57,21 +57,22 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(AdminSignIn.fulfilled, (state, { payload }) => {
+      .addCase(adminSignIn.fulfilled, (state, { payload }) => {
         state.adminAccessToken = payload.data.accessToken;
         setAccessToken(payload.data, ACCESS_TOKEN_KEY.ADMIN);
         state.admin = { ...payload.data.user };
       })
-      .addCase(AdminSignIn.rejected, () => {
+      .addCase(adminSignIn.rejected, () => {
         toast.error('Đăng nhập thất bại!');
       });
     builder
-      .addCase(ShipperSignIn.fulfilled, (state, { payload }) => {
+      .addCase(shipperSignIn.fulfilled, (state, { payload }) => {
         state.shipperAccessToken = payload.data.accessToken;
         setAccessToken(payload.data, ACCESS_TOKEN_KEY.SHIPPER);
         state.shipper = { ...payload.data.user };
       })
-      .addCase(ShipperSignIn.rejected, () => {
+      .addCase(shipperSignIn.rejected, (state, { payload }) => {
+        console.log(payload);
         toast.error('Tài khoản không hợp lệ!');
       });
   },

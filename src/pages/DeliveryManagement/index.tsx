@@ -13,7 +13,7 @@ import OrderDetail from 'pages/OrderManagement/components/OrderDetail';
 import TableOrder from './components/TableOrder';
 import { getDeliveryAsync } from 'redux/customerOrder/thunkActions';
 import { getShipper } from 'redux/user/selectors';
-import { getStaffsAsync } from 'redux/staff/thunkActions';
+import { getStaffsForDeliveryAsync } from 'redux/staff/thunkActions';
 
 const DeliveryManagement = () => {
   const classes = useStyles();
@@ -31,7 +31,7 @@ const DeliveryManagement = () => {
 
   useEffect(() => {
     (async () => {
-      await dispatch(getStaffsAsync());
+      await dispatch(getStaffsForDeliveryAsync());
     })();
   }, []);
 

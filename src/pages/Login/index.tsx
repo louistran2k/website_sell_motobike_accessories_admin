@@ -14,7 +14,7 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { Person, Https, Visibility, VisibilityOff } from '@mui/icons-material';
 import { LoginRequest } from 'types/user.type';
 import { useStyles } from './style';
-import { AdminSignIn, ShipperSignIn } from 'redux/user/thunkActions';
+import { adminSignIn, shipperSignIn } from 'redux/user/thunkActions';
 
 const schema = yup.object().shape({
   username: yup.string().label('Username').required(),
@@ -39,12 +39,12 @@ function Login() {
 
   const onSubmit = async (data: LoginRequest) => {
     if (location.pathname.includes('shipper')) {
-      const res = await dispatch(ShipperSignIn(data));
+      const res = await dispatch(shipperSignIn(data));
       if (res.payload) {
         navigate('/shipper/app/delivery');
       }
     } else {
-      const res = await dispatch(AdminSignIn(data));
+      const res = await dispatch(adminSignIn(data));
       if (res.payload) {
         navigate('/admin/app/orders');
       }

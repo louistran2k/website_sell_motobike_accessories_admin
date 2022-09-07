@@ -22,7 +22,7 @@ import {
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useAppSelector } from 'redux/hooks';
-import axiosClient from 'api/axiosClient';
+import { axiosClientAdmin } from 'api/axiosClient';
 import { convertCurrency } from 'redux/customerOrder/slice';
 import { Revenue } from 'types/customerOrder.type';
 import { getAdmin } from 'redux/user/selectors';
@@ -69,7 +69,7 @@ const RevenueStatistics = () => {
 
   const onSubmit = async (data: CustomTimeType) => {
     try {
-      const res = await axiosClient.get('api/revenue/export', {
+      const res = await axiosClientAdmin.get('api/revenue/export', {
         params: {
           start: format(data.startDate as Date, 'yyyy-MM-dd'),
           end: format(data.endDate as Date, 'yyyy-MM-dd'),
@@ -87,7 +87,7 @@ const RevenueStatistics = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axiosClient.get('api/revenue/export', {
+        const res = await axiosClientAdmin.get('api/revenue/export', {
           params: {
             start: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
             end: format(new Date(), 'yyyy-MM-dd'),

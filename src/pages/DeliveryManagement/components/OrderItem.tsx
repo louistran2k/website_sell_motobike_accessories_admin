@@ -1,34 +1,21 @@
-import { Visibility, CheckCircle, Delete } from '@mui/icons-material';
+import { Visibility, CheckCircle } from '@mui/icons-material';
 import {
   TableRow,
   TableCell,
   Typography,
-  Select,
-  MenuItem,
   IconButton,
-  SelectChangeEvent,
   useTheme,
   Tooltip,
 } from '@mui/material';
-import { format, formatDistance } from 'date-fns';
-import { useState } from 'react';
-import { toast } from 'react-toastify';
-import { convertCurrency, setIsShowDetail } from 'redux/customerOrder/slice';
+import { format } from 'date-fns';
+import { setIsShowDetail } from 'redux/customerOrder/slice';
 import {
-  approvalCustomerOrderAsync,
-  cancelledAsync,
-  changeDeliveryStaffAsync,
   deliveredAsync,
-  getOrderDetailAsync,
+  getOrderDetailShipperAsync,
 } from 'redux/customerOrder/thunkActions';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { getStaffs, getStatus } from 'redux/customerOrder/selectors';
-import {
-  UpdateRequest,
-  CustomerOrder,
-  CustomerOrderStatus,
-} from 'types/customerOrder.type';
-import { getAdmin } from 'redux/user/selectors';
+import { getStatus } from 'redux/customerOrder/selectors';
+import { CustomerOrder, CustomerOrderStatus } from 'types/customerOrder.type';
 import Swal from 'sweetalert2';
 import { confirmButtonColor, cancelButtonColor } from 'themes/HomeTheme';
 
@@ -43,7 +30,7 @@ const OrderItem = ({ item }: Props) => {
 
   const handleViewOrderDetail = () => {
     dispatch(setIsShowDetail());
-    dispatch(getOrderDetailAsync(item.id));
+    dispatch(getOrderDetailShipperAsync(item.id));
   };
   const handleUpdate = async () => {
     const confirm = await Swal.fire({
